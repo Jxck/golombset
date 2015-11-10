@@ -10,6 +10,6 @@ golombset: cmd.c golombset.h
 	$(CC) -Wall -g cmd.c -o $@
 
 clean:
-	rm -f test.exe golombset
+	rm -rf test.exe golombset golombset.dSYM test.exe.dSYM
 
 .PHONY: check clean
