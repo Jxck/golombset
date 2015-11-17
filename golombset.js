@@ -1,3 +1,4 @@
+"use strict"
 function Golombset(bufsize, fixedBits) {
   this.buf = new Uint8Array(bufsize);
   this.fixedBits = fixedBits;
@@ -42,8 +43,17 @@ Golombset.prototype.encodeValue = function(value) {
 }
 
 Golombset.prototype.encode = function(keys) {
+  const GOLOMBSET_FIXED_BITS_LENGTH = 5;
   var next_min = 0;
+
+  this.fixedBits = Golombset.calcFixedBits(keys[keys.length-1], keys.length);
+
   this.buf[0] = 0xff;
+
+  for (let i = 0; i != GOLOMBSET_FIXED_BITS_LENGTH; ++i) {
+    let bit = (this.fixedBits >> (GOLOMBSET_FIXED_BITS_LENGTH - 1 - i)) & 1;
+    this.encodeBit(bit);
+  }
 
   // encode each value
   for (var i = 0; i < keys.length; i++) {
@@ -57,8 +67,28 @@ Golombset.prototype.encode = function(keys) {
   }
 }
 
+Golombset.calcFixedBits = function(maxKey, numKey) {
+  // calculate P of [0, N*P)
+  var P = Math.floor(maxKey/numKey);
+
+  if(P < 1) return 0;
+
+  // counting bit(log2(P))
+  var bits = 0;
+  while(P>0) {
+    bits ++;
+    P = P >> 1;
+  }
+
+  return bits - 1;
+}
+
 
 function test() {
+
+  var bits = Golombset.calcFixedBits(1630, 26);
+  console.assert(bits, 5);
+
   var bufsize = 25;
   var fixedBits = 6;
   var golombset = new Golombset(25, 6);
@@ -70,11 +100,11 @@ function test() {
 
   golombset.encode(keys);
 
-  // console.log(golombset.buf);
+  console.log(golombset.buf.join(' ' ));
 
   var expected = [
-    203, 168, 30,  243, 126, 200, 108, 4, 54, 60, 194, 34, 245, 65, 197, 218, 68,
-    23,  159, 100, 56,  197, 85,  40,  47,
+    47, 175, 32,  251, 159, 126, 145, 184, 24, 222, 123, 16, 151, 229, 14, 95, 83,
+    33, 125, 250, 71,  49,  202, 226, 133
   ];
 
   console.assert(golombset.buf.length === expected.length);
