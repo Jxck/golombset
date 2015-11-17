@@ -43,13 +43,14 @@ Golombset.prototype.encodeValue = function(value) {
 }
 
 Golombset.prototype.encode = function(keys) {
-  const GOLOMBSET_FIXED_BITS_LENGTH = 5;
   var next_min = 0;
 
   this.fixedBits = Golombset.calcFixedBits(keys[keys.length-1], keys.length);
 
   this.buf[0] = 0xff;
 
+  // encode fixedBits as 5 bit value
+  const GOLOMBSET_FIXED_BITS_LENGTH = 5;
   for (let i = 0; i != GOLOMBSET_FIXED_BITS_LENGTH; ++i) {
     let bit = (this.fixedBits >> (GOLOMBSET_FIXED_BITS_LENGTH - 1 - i)) & 1;
     this.encodeBit(bit);
