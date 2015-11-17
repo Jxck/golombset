@@ -1,7 +1,7 @@
 "use strict"
-function Golombset(bufsize, fixedBits) {
+function Golombset(bufsize) {
+  if (bufsize === undefined) bufsize = 1024;
   this.buf = new Uint8Array(bufsize);
-  this.fixedBits = fixedBits;
   this.current = 0;
   this.shift = 8;
 }
@@ -66,6 +66,9 @@ Golombset.prototype.encode = function(keys) {
   if (this.shift === 8) {
     this.current -= 1;
   }
+
+  // cut out the filled buffer
+  this.buf = this.buf.subarray(0, this.current+1);
 }
 
 Golombset.calcFixedBits = function(maxKey, numKey) {
@@ -90,14 +93,15 @@ function test() {
   let bits = Golombset.calcFixedBits(1630, 26);
   console.assert(bits, 5);
 
-  let bufsize = 25;
-  let fixedBits = 6;
-  let golombset = new Golombset(25, 6);
+  let bufsize = 256;
+  let golombset = new Golombset(bufsize);
 
   let keys = [
     151, 192,  208,  269,  461,  512,  526,  591,  662,  806,  831,  866,  890,
     997, 1005, 1017, 1134, 1207, 1231, 1327, 1378, 1393, 1418, 1525, 1627, 1630
   ];
+  // let keys = [115, 923];
+  console.log(keys.length);
 
   golombset.encode(keys);
 
