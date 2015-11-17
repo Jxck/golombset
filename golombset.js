@@ -25,7 +25,7 @@ Golombset.prototype.encodeBit = function(bit) {
 
 Golombset.prototype.encodeValue = function(value) {
   // emit the unary bits
-  var unary = value >> this.fixedBits; // value / p
+  let unary = value >> this.fixedBits; // value / p
   for (; unary > 0; unary--) { // N Unary
     this.encodeBit(1);         // 0 0
   }                            // 1 10
@@ -35,7 +35,7 @@ Golombset.prototype.encodeValue = function(value) {
   // N = 151
   // 1001,0111
   // 0001,0111
-  var shift = this.fixedBits;
+  let shift = this.fixedBits;
   do {
     // emit each bit from top
     this.encodeBit((value >> --shift) & 1);
@@ -43,7 +43,7 @@ Golombset.prototype.encodeValue = function(value) {
 }
 
 Golombset.prototype.encode = function(keys) {
-  var next_min = 0;
+  let next_min = 0;
 
   this.fixedBits = Golombset.calcFixedBits(keys[keys.length-1], keys.length);
 
@@ -57,7 +57,7 @@ Golombset.prototype.encode = function(keys) {
   }
 
   // encode each value
-  for (var i = 0; i < keys.length; i++) {
+  for (let i = 0; i < keys.length; i++) {
     this.encodeValue(keys[i] - next_min);
     next_min = keys[i] + 1;
   }
@@ -70,12 +70,12 @@ Golombset.prototype.encode = function(keys) {
 
 Golombset.calcFixedBits = function(maxKey, numKey) {
   // calculate P of [0, N*P)
-  var P = Math.floor(maxKey/numKey);
+  let P = Math.floor(maxKey/numKey);
 
   if(P < 1) return 0;
 
   // counting bit(log2(P))
-  var bits = 0;
+  let bits = 0;
   while(P>0) {
     bits ++;
     P = P >> 1;
@@ -87,29 +87,29 @@ Golombset.calcFixedBits = function(maxKey, numKey) {
 
 function test() {
 
-  var bits = Golombset.calcFixedBits(1630, 26);
+  let bits = Golombset.calcFixedBits(1630, 26);
   console.assert(bits, 5);
 
-  var bufsize = 25;
-  var fixedBits = 6;
-  var golombset = new Golombset(25, 6);
+  let bufsize = 25;
+  let fixedBits = 6;
+  let golombset = new Golombset(25, 6);
 
-  var keys = [
+  let keys = [
     151, 192,  208,  269,  461,  512,  526,  591,  662,  806,  831,  866,  890,
     997, 1005, 1017, 1134, 1207, 1231, 1327, 1378, 1393, 1418, 1525, 1627, 1630
   ];
 
   golombset.encode(keys);
 
-  console.log(golombset.buf.join(' ' ));
+  console.log(golombset.buf.join(' '));
 
-  var expected = [
+  let expected = [
     47, 175, 32,  251, 159, 126, 145, 184, 24, 222, 123, 16, 151, 229, 14, 95, 83,
     33, 125, 250, 71,  49,  202, 226, 133
   ];
 
   console.assert(golombset.buf.length === expected.length);
-  for (var i = 0; i < expected.length; i ++) {
+  for (let i = 0; i < expected.length; i ++) {
     console.assert(golombset.buf[i] === expected[i]);
   }
 }
